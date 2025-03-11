@@ -1,0 +1,69 @@
+import pygame
+from src.enums import colorBlindType
+from src import data
+from src.core.utils.screenunit import *
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.game.input import Input
+
+
+class Player:
+    def __init__(self, input: 'Input', img: str, upside_down: bool, player_number: int):
+        self.color_blind_type = colorBlindType.none
+
+        self.player_number = player_number
+        self.score = 0
+        self.upside_down = upside_down
+        self.img: pygame.Surface = pygame.transform.flip(
+            pygame.image.load(img), False, upside_down)
+        self.input = input
+
+        self.x = 20
+        if self.upside_down:
+            self.y = (center_of_screen()[1] + 50)
+        else:
+            self.y = (center_of_screen()[1] - self.img.get_height()) - 50
+
+        # jumping variables
+        self.jump_action = False # determins if the player is jumping or not
+        self.ground_pos = self.y
+        self.jumping_up = False
+        self.jump_threshold = self.y + self.img.get_height()
+
+    def change_chunk(self):
+        self.upside_down = not self.upside_down
+        self.img = pygame.transform.flip(self.img, False, self.upside_down)
+
+    def draw(self):
+        data.window.blit(self.img, (self.x, self.y))
+
+    def move(self):
+        if self.input.player_is_moving_left(self.player_number):
+            self.x -= 1
+        elif self.input.player_is_moving_right(self.player_number):
+            self.x += 1
+        if self.input.player_is_jumping(self.player_number):
+            if not self.jump_action:
+                self.ground_pos = self.y
+                self.jump_action = True
+                self.jump_threshold = self.y - self._factor_upside_down(self.img.get_height())
+                self.jumping_up = True
+        
+        if self.jump_action:
+            self._jump()
+                
+            
+    def _jump(self):
+        print(self.y, self.ground_pos, self.jump_threshold)
+        if self.jumping_up:
+            self.y -= self._factor_upside_down(1)
+            if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):
+                self.jumping_up = False
+        else:
+            self.y += self._factor_upside_down(1)
+            if (not self.upside_down and self.y >= self.ground_pos) or (self.upside_down and self.y <= self.ground_pos):
+                self.jump_action = False
+    
+    def _factor_upside_down(self, value):
+        return value * -1 if self.upside_down else value

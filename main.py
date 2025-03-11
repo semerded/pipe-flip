@@ -15,14 +15,17 @@ from src.game.world import World
 from src.color import Color
 from src.game.input import Input
 from src.core.handler.event import event_handler
-
-
+from src.game.player import Player
 
 data.window = pygame.display.set_mode((data.window_width, data.window_height))
 data.camera = Camera(data.window_width, data.window_height)
 
-world: World = World()
 data.game_input = Input()
+
+player1 = Player(data.game_input, "assets/img/actor/player.png", False, 0)
+player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
+
+world: World = World(player1, player2)
 
 
 while data.game_running:

@@ -16,6 +16,7 @@ from src.color import Color
 from src.game.input import Input
 from src.core.handler.event import event_handler
 from src.game.player import Player
+from src.core.handler.scaling import Scaling
 
 data.window = pygame.display.set_mode((data.window_width, data.window_height))
 data.camera = Camera(data.window_width, data.window_height)

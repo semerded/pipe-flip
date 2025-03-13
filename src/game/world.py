@@ -5,6 +5,8 @@ from src.core.utils.rect import Rect
 from src.color import Color
 from src.game.chunk import Chunk
 from src.game.player import Player
+from src.game.load_and_save import load_level
+from src.game.tile import Tile
 
 
 class World:
@@ -15,19 +17,26 @@ class World:
         self.player1 = player1
         self.player2 = player2
         
-        self.overworld = Chunk(player1, self.overworld_rect)
-        self.underworld = Chunk(player2, self.underworld_rect)
+        self.overworld = Chunk(player1, self.overworld_rect, False)
+        self.underworld = Chunk(player2, self.underworld_rect, True)
+        
+        self.load_level()
         
     def cycle(self):
-        self.overworld.cycle(Color.BLUE)
-        self.underworld.cycle(Color.RED)
+        self.overworld.cycle()
+        self.underworld.cycle()
+        
+    def load_level(self):
+        level_data = load_level()
+        for tile in level_data["overworld"]:
+            self.overworld.tiles.append(Tile(tile[0], tile[1], tile[2], False))
+        for tile in level_data["underworld"]:
+            self.underworld.tiles.append(Tile(tile[0], tile[1], tile[2], True))
+        
 
     def draw(self):
-        # pygame.draw.rect(data.window, Color.RED, self.overworld_rect.pack())
-        # pygame.draw.rect(data.window, Color.BLUE, self.underworld_rect.pack())
-        
-        self.overworld.draw(Color.BLUE)
-        self.underworld.draw(Color.RED)
+        self.overworld.draw()
+        self.underworld.draw()
         
     def update(self):
         self.draw()

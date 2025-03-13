@@ -37,16 +37,17 @@ class Player:
 
         self.x = 20
         if self.upside_down:
-            self.y = (center_of_screen()[1] + 50)
+            self.y = (center_of_screen()[1] + vh(40))
         else:
-            self.y = (center_of_screen()[1] - self.img.get_height()) - 50
+            self.y = (center_of_screen()[1] - self.img.get_height()) - vh(40)
 
         # jumping variables
-        self.jump_height = 2
+        self.jump_height = 3
         self.jump_action = False  # determins if the player is jumping or not
         self.ground_pos = self.y
         self.jumping_up = False
         self.jump_threshold = self.y + self.img.get_height()
+        self.jump_held = False  
 
         self.rect: Rect = self.get_rect()
         self.previous_rect: Rect = Rect.place_holder()
@@ -54,9 +55,9 @@ class Player:
 
         # movemvent speed
 
-        self.X_SPEED = 300
-        self.Y_UP_SPEED = 600
-        self.Y_DOWN_SPEED = 700
+        self.X_SPEED = vw(20)
+        self.Y_UP_SPEED = vh(60)
+        self.Y_DOWN_SPEED = vh(70)
 
 
     def change_chunk(self):
@@ -81,7 +82,6 @@ class Player:
 
     def draw(self):
         data.window.blit(self.img, (self.x, self.y))
-        pygame.draw.rect(data.window, Color.GREEN, self.rect, 1)
 
     def get_nearby_tile_indices(self, tile_list):
         """
@@ -98,19 +98,20 @@ class Player:
         return [tile_list[i] for i in indices]  
 
 
-    def move(self, tile_grid):
+    def move(self, tile_list):
         """
         Moves the player's position and resolves collisions with tiles by updating
-        self.x and self.y. This method assumes that collisions are resolved along the
-        horizontal axis first, then the vertical axis.
+        self.x and self.y. Collision resolution is handled horizontally first and then vertically.
+        Gravity and collisions are resolved differently for an upside-down player.
         """
         # Save the old collision rectangle.
         self.previous_rect = self.rect
 
         horizontal_move = 0
         prev_x = self.x
+        just_jumped = False
 
-        # --- Horizontal movement ---
+        # --- Horizontal Movement ---
         if self.input.player_is_moving_left(self.player_number):
             self.x -= calculate_delta(self.X_SPEED)
             horizontal_move += 1
@@ -126,60 +127,97 @@ class Player:
             self.x = prev_x
             horizontal_move = 0
 
+
+        # Update collision rectangle after horizontal changes.
+
         # Play footsteps sound only if moving left or right, but not both at once
         if horizontal_move in [1, 2]:  # 1 = left, 2 = right
             self.sound_manager.play_sound("footsteps")
 
         # Update the collision rectangle (for horizontal movement).
+
         self.rect = self.get_rect()
 
         if horizontal_move > 0:
-            nearby_tiles = self.get_nearby_tiles(tile_grid)
+            nearby_tiles = self.get_nearby_tiles(tile_list)
             for tile in nearby_tiles:
                 if self.rect.colliderect(tile.rect):
                     if horizontal_move == 2:  # Moving right.
                         self.rect.right = tile.rect.left
                     elif horizontal_move == 1:  # Moving left.
                         self.rect.left = tile.rect.right
-            # Update self.x to follow the resolved collision.
             self.x = self.rect.x
 
-        # --- Vertical movement ---
+        # --- Vertical Movement ---
+        # Edge-triggered jump: only initiate jump if the jump button is pressed now and wasn't already held.
         if self.input.player_is_jumping(self.player_number):
-            if not self.jump_action:
+            if not self.jump_held and not self.jump_action:
                 self.ground_pos = self.y
                 self.jump_action = True
-                # When jumping, set the threshold (taking into account inversion).
-                self.jump_threshold = self.y - self._factor_upside_down(self.img.get_height()) * self.jump_height
                 self.jumping_up = True
+                self.jump_threshold = self.y - self._factor_upside_down(self.img.get_height()) * self.jump_height
+                just_jumped = True
+            # Mark jump as held so it cannot be re-triggered.
+            self.jump_held = True
+        else:
+            # When the jump button is not pressed, clear the flag so new jumps can occur.
+            self.jump_held = False
 
         if self.jump_action:
-            self._jump()  # This updates self.y accordingly.
+            self._jump()  # _jump() updates self.y based on jump speeds.
+            self.stage_update = True
+        else:
+            # Not jumping: apply gravity.
+            # For normal players, y increases (falling down). For upside-down, _factor_upside_down negates the delta (falling up).
+            self.y += self._factor_upside_down(calculate_delta(self.Y_DOWN_SPEED))
             self.stage_update = True
 
         # Update collision rectangle after vertical movement.
         self.rect = self.get_rect()
 
-        # Resolve vertical collisions.
-        nearby_tiles = self.get_nearby_tiles(tile_grid)
+        # --- Vertical Collision Resolution ---
+        nearby_tiles = self.get_nearby_tiles(tile_list)
         for tile in nearby_tiles:
             if self.rect.colliderect(tile.rect):
-                if not self.jumping_up:
-                    # Moving down: snap player's bottom to tile's top.
-                    self.rect.bottom = tile.rect.top
-                elif self.jumping_up:
-                    # Moving up: snap player's top to tile's bottom.
-                    self.rect.top = tile.rect.bottom
-        # Update self.y to reflect the resolution.
-        self.y = self.rect.y
+                if self.upside_down:
+                    # Upside-down player collisions.
+                    if not self.jumping_up:
+                        # When falling under reversed gravity (i.e. moving upward), snap the player's top to the tile's bottom.
+                        self.rect.top = tile.rect.bottom
+                        self.y = self.rect.y
+                        self.jump_action = False  # Landed.
+                    elif self.jumping_up and not just_jumped:
+                        # When "jumping" (moving downward relative to screen), snap the player's bottom to the tile's top.
+                        self.rect.bottom = tile.rect.top
+                        self.y = self.rect.y
+                        self.jumping_up = False
+                else:
+                    # Normal (overworld) player collisions.
+                    if not self.jumping_up:
+                        # When falling (moving downward), snap player's bottom to tile's top.
+                        self.rect.bottom = tile.rect.top
+                        self.y = self.rect.y
+                        self.jump_action = False  # Landed.
+                    elif self.jumping_up and not just_jumped:
+                        # When jumping upward, snap player's top to tile's bottom.
+                        self.rect.top = tile.rect.bottom
+                        self.y = self.rect.y
+                        self.jumping_up = False
 
-        # Recalculate the collision rectangle to have the final position.
+        # Sync vertical position and update collision rectangle.
+        self.y = self.rect.y
         self.rect = self.get_rect()
 
 
     
     def _jump(self):
         if self.jumping_up:
+            # While jumping upward: normal behavior is to decrease y for an overworld player.
+            self.y -= self._factor_upside_down(calculate_delta(self.Y_UP_SPEED))
+            # Check if jump threshold is reached depending on orientation.
+            if (not self.upside_down and self.y <= self.jump_threshold) or \
+            (self.upside_down and self.y >= self.jump_threshold):
+
             # Trigger jump sound when jumping up
             if not self.jumped:
                 # Assuming 'jump' is the key for the jump sound in your SoundManager
@@ -191,12 +229,16 @@ class Player:
             if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):
                 self.jumping_up = False
         else:
-            self.y += self._factor_upside_down(calculate_delta(700))
-            if (not self.upside_down and self.y >= self.ground_pos) or (self.upside_down and self.y <= self.ground_pos):
+            # While falling in a jump: increase y for overworld, decrease for upside-down.
+            self.y += self._factor_upside_down(calculate_delta(self.Y_DOWN_SPEED))
+            if (not self.upside_down and self.y >= self.ground_pos) or \
+            (self.upside_down and self.y <= self.ground_pos):
                 self.y = self.ground_pos
                 self.jump_action = False
                 # Reset the flag when the player lands
                 self.jumped = False  
+
+
 
 
     def _factor_upside_down(self, value):

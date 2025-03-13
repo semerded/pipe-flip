@@ -19,7 +19,11 @@ class Chunk:
         
         
         #testing
-        self.tiles.append(Tile(3, 12))
+        self.tiles.append(Tile(3, 8))
+        self.tiles.append( Tile(3, 6))
+        self.tiles.append(Tile(4, 8))
+        self.tiles.append( Tile(5, 8))
+        self.tiles.append(Tile(5, 7))
         
         
         
@@ -28,7 +32,7 @@ class Chunk:
         # pygame.image.load(self.TEXTURE_PATH_BASE + "0" + self.player.color_blind_type.value + ".png")
     
     def cycle(self, color):
-        if self.player.cycle():
+        if self.player.cycle(self.tiles):
             self.draw(color)
             
         

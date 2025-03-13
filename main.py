@@ -43,6 +43,6 @@ while data.game_running:
     if len(data.rect_update_list) != 0:
         pygame.display.update(data.rect_update_list)
         data.rect_update_list = []
-            
+    
 # cleanup
 exit(0)

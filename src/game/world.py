@@ -17,6 +17,10 @@ class World:
         
         self.overworld = Chunk(player1, self.overworld_rect)
         self.underworld = Chunk(player2, self.underworld_rect)
+        
+    def cycle(self):
+        self.overworld.cycle(Color.BLUE)
+        self.underworld.cycle(Color.RED)
 
     def draw(self):
         # pygame.draw.rect(data.window, Color.RED, self.overworld_rect.pack())
@@ -24,6 +28,11 @@ class World:
         
         self.overworld.draw(Color.BLUE)
         self.underworld.draw(Color.RED)
+        
+    def update(self):
+        self.draw()
+        data.rect_update_list = []
+        data.rect_update_list.append(self.overworld_rect.union(self.underworld_rect))
     
     def switch_players(self):
         self.player1.change_chunk()

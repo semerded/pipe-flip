@@ -1,8 +1,8 @@
 from enum import Enum
 
 class colorBlindType(Enum):
-    none = "none"
-    protanomaly = "protanomaly"
-    deuteranomaly = "deuteranomaly"
-    tritanomaly = "tritanomaly"
+    none = ""
+    protanomaly = "_protanomaly"
+    deuteranomaly = "_deuteranomaly"
+    tritanomaly = "_tritanomaly"
     

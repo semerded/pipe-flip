@@ -6,3 +6,9 @@ class colorBlindType(Enum):
     deuteranomaly = "_deuteranomaly"
     tritanomaly = "_tritanomaly"
     
+    
+class screen(Enum):
+    intro = 0
+    game = 1
+    menu = 2
+    

@@ -8,42 +8,38 @@ from src.game.tile import Tile
 
 
 class Chunk:
-    def __init__(self, player: Player, rect: Rect):
+    def __init__(self, player: Player, rect: Rect, upside_down: bool):
         self.player = player
         self.rect = rect
-        self.TEXTURE_PATH_BASE = "assets/textures/chunks/"
-        self.textures = []
+        self.upside_down = upside_down
+        
+        self.TEXTURE_PATH_BASE = "assets/img/chunk/"
+        self.textures: list[pygame.Surface] = []
         self.stage_update = True
+
+
+        self.tiles: list[Tile] = []
         
-        self.tiles = []
-        
-        
-        #testing
-        self.tiles.append(Tile(3, 8))
-        self.tiles.append( Tile(3, 6))
-        self.tiles.append(Tile(4, 8))
-        self.tiles.append( Tile(5, 8))
-        self.tiles.append(Tile(5, 7))
-        
-        
-        
+        self._load_textures()
+
     def _load_textures(self):
-        pass
-        # pygame.image.load(self.TEXTURE_PATH_BASE + "0" + self.player.color_blind_type.value + ".png")
-    
-    def cycle(self, color):
+        _type = "overworld" if not self.upside_down else "underworld"
+        img = pygame.transform.scale(pygame.image.load(self.TEXTURE_PATH_BASE + _type + "1" + self.player.color_blind_type.value + ".jpg").convert(), (self.rect.width, self.rect.height))
+        if self.upside_down:
+            img = pygame.transform.flip(img, False, True)
+        self.textures.append(img)
+
+    def cycle(self):
         if self.player.cycle(self.tiles):
-            self.draw(color)
-            
-        
-    def draw(self, color):
-        pygame.draw.rect(data.window, color, self.rect.pack())
+            self.draw()
+
+    def draw(self):
+        data.window.blit(self.textures[0], self.rect)
         tile: Tile
         for tile in self.tiles:
             tile.draw()
         self.player.draw()
 
-        
-    def update(self):        
+    def update(self):
         self.player.draw()
         pygame.display.update(self.rect)

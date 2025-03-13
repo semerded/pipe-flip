@@ -1,3 +1,4 @@
+import os
 import pygame
 
 # init pygame
@@ -5,21 +6,24 @@ pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("pipe flip!")
 
-import os
+from src import data
+from src.screen.intro import intro
+from src.screen.menu import menu
+from src.screen.game import game
+from src.widgets.button import Button
+from src.core.handler.scaling import Scaling
+from src.game.player import Player
+from src.core.handler.event import event_handler
+from src.game.input import Input
+from src.color import Color
+from src.game.world import World
+from src.core.utils.camera import Camera
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 # import scripts
-from src import data
-from src.core.utils.camera import Camera
-from src.game.world import World
-from src.color import Color
-from src.game.input import Input
-from src.core.handler.event import event_handler
-from src.game.player import Player
-from src.core.handler.scaling import Scaling
-from src.widgets.button import Button
 
-data.window = pygame.display.set_mode((data.window_width, data.window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
+data.window = pygame.display.set_mode(
+    (data.window_width, data.window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
 data.camera = Camera(data.window_width, data.window_height)
 
 data.game_input = Input()
@@ -32,17 +36,18 @@ player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
 world: World = World(player1, player2)
 world.update()
 
+screen_funcs = ((intro, ()), (game, (world, )), (menu, ()))
+
 while data.game_running:
     # print(data.clock.get_fps())
     data.clock.tick(data.FPS)
     # data.window.fill(Color.BLACK)
     event_handler(pygame.event.get())
-            
-    world.cycle()
-    
-    if len(data.rect_update_list) != 0:
-        pygame.display.update(data.rect_update_list)
-        data.rect_update_list = []
-    
+
+    current_screen_func = screen_funcs[data.current_screen.value]
+
+    current_screen_func[0](*current_screen_func[1])
+
+
 # cleanup
 exit(0)

@@ -18,6 +18,14 @@ from src.core.handler.event import event_handler
 from src.game.player import Player
 from src.core.handler.scaling import Scaling
 from src.widgets.button import Button
+from src.core.handler.sound import SoundManager
+
+# Initialize Pygame and SoundManager
+sound_manager = SoundManager()
+
+# Set background music to loop
+sound_manager.play_background_music()
+
 
 data.window = pygame.display.set_mode((data.window_width, data.window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
 data.camera = Camera(data.window_width, data.window_height)
@@ -44,5 +52,9 @@ while data.game_running:
         pygame.display.update(data.rect_update_list)
         data.rect_update_list = []
     
+
+# Stop all sounds when game ends
+sound_manager.stop_all_sounds()
+
 # cleanup
 exit(0)

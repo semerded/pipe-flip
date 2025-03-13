@@ -7,6 +7,7 @@ from src.color import Color
 from src.core.utils.rect import Rect
 from src.core.handler.delta import calculate_delta
 from src.game.tile import Tile
+from src.core.handler.sound import SoundManager
 
 if TYPE_CHECKING:
     from src.game.input import Input
@@ -15,6 +16,11 @@ if TYPE_CHECKING:
 class Player:
     def __init__(self, input: 'Input', img: str, upside_down: bool, player_number: int):
         self.color_blind_type = colorBlindType.none
+
+        # object of sounmanager
+        self.sound_manager = SoundManager()
+         # To track if the jump sound has played
+        self.jumped = False 
 
         self.player_number = player_number
         self.score = 0
@@ -51,6 +57,7 @@ class Player:
         self.X_SPEED = 300
         self.Y_UP_SPEED = 600
         self.Y_DOWN_SPEED = 700
+
 
     def change_chunk(self):
         self.upside_down = not self.upside_down
@@ -119,6 +126,10 @@ class Player:
             self.x = prev_x
             horizontal_move = 0
 
+        # Play footsteps sound only if moving left or right, but not both at once
+        if horizontal_move in [1, 2]:  # 1 = left, 2 = right
+            self.sound_manager.play_sound("footsteps")
+
         # Update the collision rectangle (for horizontal movement).
         self.rect = self.get_rect()
 
@@ -166,8 +177,16 @@ class Player:
         self.rect = self.get_rect()
 
 
+    
     def _jump(self):
         if self.jumping_up:
+            # Trigger jump sound when jumping up
+            if not self.jumped:
+                # Assuming 'jump' is the key for the jump sound in your SoundManager
+                self.sound_manager.play_sound("jump")  
+                # Make sure the sound only plays once per jump
+                self.jumped = True  
+
             self.y -= self._factor_upside_down(calculate_delta(600))
             if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):
                 self.jumping_up = False
@@ -176,6 +195,9 @@ class Player:
             if (not self.upside_down and self.y >= self.ground_pos) or (self.upside_down and self.y <= self.ground_pos):
                 self.y = self.ground_pos
                 self.jump_action = False
+                # Reset the flag when the player lands
+                self.jumped = False  
+
 
     def _factor_upside_down(self, value):
         return value * -1 if self.upside_down else value

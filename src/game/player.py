@@ -46,22 +46,28 @@ class Player:
         self.previous_rect: Rect = Rect.place_holder()
         self.stage_update: bool = True
 
+        # movemvent speed
+
+        self.X_SPEED = 300
+        self.Y_UP_SPEED = 600
+        self.Y_DOWN_SPEED = 700
+
     def change_chunk(self):
         self.upside_down = not self.upside_down
         self.img = pygame.transform.flip(self.img, False, self.upside_down)
-        
-    def cycle(self) -> bool:
+
+    def cycle(self, tile_grid) -> bool:
         """
         main cycle of the player\n
         returns true if staged an update
         """
-        self.move()
-        
+        self.move(tile_grid)
+
         if self.stage_update:
             self.update()
             return True
         return False
-    
+
     def update(self):
         data.rect_update_list.append(self.rect.union(self.previous_rect))
         self.stage_update = False
@@ -69,36 +75,96 @@ class Player:
     def draw(self):
         data.window.blit(self.img, (self.x, self.y))
         pygame.draw.rect(data.window, Color.GREEN, self.rect, 1)
-        
-    def check_collision(self, tiles: Tile):
-        collision_indices  = self.rect.collidelistall(tiles)
-        
-        
 
-    def move(self):
+    def get_nearby_tile_indices(self, tile_list):
+        """
+        Returns indices of tiles in tile_list whose .rect collides with the player's rect.
+        This uses the built-in collidelistall method.
+        """
+        # Build the list of tile rects.
+        tile_rects = [tile.rect for tile in tile_list]
+        # collidelistall returns a list of indices where collisions occur.
+        return self.rect.collidelistall(tile_rects)
+        
+    def get_nearby_tiles(self, tile_list):
+        indices = self.get_nearby_tile_indices(tile_list)
+        return [tile_list[i] for i in indices]  
+
+
+    def move(self, tile_grid):
+        """
+        Moves the player's position and resolves collisions with tiles by updating
+        self.x and self.y. This method assumes that collisions are resolved along the
+        horizontal axis first, then the vertical axis.
+        """
+        # Save the old collision rectangle.
         self.previous_rect = self.rect
+
+        horizontal_move = 0
+        prev_x = self.x
+
+        # --- Horizontal movement ---
         if self.input.player_is_moving_left(self.player_number):
-            self.x -= calculate_delta(300)
+            self.x -= calculate_delta(self.X_SPEED)
+            horizontal_move += 1
             self.stage_update = True
-        elif self.input.player_is_moving_right(self.player_number):
-            self.x += calculate_delta(300)
+
+        if self.input.player_is_moving_right(self.player_number):
+            self.x += calculate_delta(self.X_SPEED)
+            horizontal_move += 2
             self.stage_update = True
+
+        if horizontal_move == 3:
+            # Both directions pressed; cancel horizontal movement.
+            self.x = prev_x
+            horizontal_move = 0
+
+        # Update the collision rectangle (for horizontal movement).
+        self.rect = self.get_rect()
+
+        if horizontal_move > 0:
+            nearby_tiles = self.get_nearby_tiles(tile_grid)
+            for tile in nearby_tiles:
+                if self.rect.colliderect(tile.rect):
+                    if horizontal_move == 2:  # Moving right.
+                        self.rect.right = tile.rect.left
+                    elif horizontal_move == 1:  # Moving left.
+                        self.rect.left = tile.rect.right
+            # Update self.x to follow the resolved collision.
+            self.x = self.rect.x
+
+        # --- Vertical movement ---
         if self.input.player_is_jumping(self.player_number):
             if not self.jump_action:
                 self.ground_pos = self.y
                 self.jump_action = True
-                self.jump_threshold = self.y - \
-                    self._factor_upside_down(self.img.get_height()) * self.jump_height
+                # When jumping, set the threshold (taking into account inversion).
+                self.jump_threshold = self.y - self._factor_upside_down(self.img.get_height()) * self.jump_height
                 self.jumping_up = True
 
         if self.jump_action:
-            self._jump()
+            self._jump()  # This updates self.y accordingly.
             self.stage_update = True
-            
-            
+
+        # Update collision rectangle after vertical movement.
         self.rect = self.get_rect()
-            
-        
+
+        # Resolve vertical collisions.
+        nearby_tiles = self.get_nearby_tiles(tile_grid)
+        for tile in nearby_tiles:
+            if self.rect.colliderect(tile.rect):
+                if not self.jumping_up:
+                    # Moving down: snap player's bottom to tile's top.
+                    self.rect.bottom = tile.rect.top
+                elif self.jumping_up:
+                    # Moving up: snap player's top to tile's bottom.
+                    self.rect.top = tile.rect.bottom
+        # Update self.y to reflect the resolution.
+        self.y = self.rect.y
+
+        # Recalculate the collision rectangle to have the final position.
+        self.rect = self.get_rect()
+
 
     def _jump(self):
         if self.jumping_up:
@@ -116,4 +182,3 @@ class Player:
 
     def get_rect(self) -> Rect:
         return Rect(self.x, self.y, self.img.get_width(), self.img.get_height())
-    

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from src.color import Color
 from src.core.utils.rect import Rect
 from src.core.handler.delta import calculate_delta
+from src.game.tile import Tile
 
 if TYPE_CHECKING:
     from src.game.input import Input
@@ -22,7 +23,7 @@ class Player:
         _py_img = pygame.image.load(img)
         aspect_ratio = _py_img.get_height() / _py_img.get_width()
         _py_img = pygame.transform.smoothscale(
-            _py_img, ((data.TILE_SIZE * 2) - 2, int((data.TILE_SIZE * 2) * aspect_ratio) - 2))
+            _py_img, ((data.TILE_SIZE) - 2, int((data.TILE_SIZE) * aspect_ratio) - 2))
         self.img: pygame.Surface = pygame.transform.flip(
             _py_img, False, upside_down)
 
@@ -35,6 +36,7 @@ class Player:
             self.y = (center_of_screen()[1] - self.img.get_height()) - 50
 
         # jumping variables
+        self.jump_height = 2
         self.jump_action = False  # determins if the player is jumping or not
         self.ground_pos = self.y
         self.jumping_up = False
@@ -68,6 +70,9 @@ class Player:
         data.window.blit(self.img, (self.x, self.y))
         pygame.draw.rect(data.window, Color.GREEN, self.rect, 1)
         
+    def check_collision(self, tiles: Tile):
+        collision_indices  = self.rect.collidelistall(tiles)
+        
         
 
     def move(self):
@@ -83,7 +88,7 @@ class Player:
                 self.ground_pos = self.y
                 self.jump_action = True
                 self.jump_threshold = self.y - \
-                    self._factor_upside_down(self.img.get_height())
+                    self._factor_upside_down(self.img.get_height()) * self.jump_height
                 self.jumping_up = True
 
         if self.jump_action:

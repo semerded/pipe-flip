@@ -4,6 +4,7 @@ from src.core.utils.rect import Rect
 from src.core.utils.screenunit import *
 from src.color import Color
 from src import data
+from src.game.tile import Tile
 
 
 class Chunk:
@@ -14,6 +15,12 @@ class Chunk:
         self.textures = []
         self.stage_update = True
         
+        self.tiles = []
+        
+        
+        #testing
+        self.tiles.append(Tile(3, 12))
+        
         
         
     def _load_textures(self):
@@ -22,13 +29,16 @@ class Chunk:
     
     def cycle(self, color):
         if self.player.cycle():
-            pygame.draw.rect(data.window, color, self.rect.pack())
-            self.player.draw()
+            self.draw(color)
             
         
     def draw(self, color):
         pygame.draw.rect(data.window, color, self.rect.pack())
+        tile: Tile
+        for tile in self.tiles:
+            tile.draw()
         self.player.draw()
+
         
     def update(self):        
         self.player.draw()

@@ -17,6 +17,7 @@ from src.game.input import Input
 from src.core.handler.event import event_handler
 from src.game.player import Player
 from src.core.handler.scaling import Scaling
+from src.widgets.button import Button
 
 data.window = pygame.display.set_mode((data.window_width, data.window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
 data.camera = Camera(data.window_width, data.window_height)
@@ -32,7 +33,7 @@ world: World = World(player1, player2)
 world.update()
 
 while data.game_running:
-    print(data.clock.get_fps())
+    # print(data.clock.get_fps())
     data.clock.tick(data.FPS)
     # data.window.fill(Color.BLACK)
     event_handler(pygame.event.get())
@@ -42,7 +43,6 @@ while data.game_running:
     if len(data.rect_update_list) != 0:
         pygame.display.update(data.rect_update_list)
         data.rect_update_list = []
-            
             
 # cleanup
 exit(0)

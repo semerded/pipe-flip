@@ -20,9 +20,8 @@ BLUE = (0, 0, 255)
 
 # Fonts
 font = pygame.font.Font(None, 36)
-small_font = pygame.font.Font(None, 24)  # Define small_font
+small_font = pygame.font.Font(None, 24)
 
-# Keybinds (example)
 player1_keybinds = {"up": pygame.K_w, "down": pygame.K_s, "left": pygame.K_a, "right": pygame.K_d}
 player2_keybinds = {"up": pygame.K_UP, "down": pygame.K_DOWN, "left": pygame.K_LEFT, "right": pygame.K_RIGHT}
 
@@ -53,7 +52,7 @@ def keybind_submenu(player_keybinds, player_number):
 
     # Initialize the submenu
     submenu_active = True
-    current_action = "up"  # Start with the "up" action
+    current_action = "up"  
 
     while submenu_active:
         for event in pygame.event.get():
@@ -62,19 +61,16 @@ def keybind_submenu(player_keybinds, player_number):
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    submenu_active = False  # Exit the submenu
+                    submenu_active = False  
                 else:
-                    # Update the keybind for the current action
                     player_keybinds[current_action] = event.key
-                    # Move to the next action
                     actions = list(player_keybinds.keys())
                     current_index = actions.index(current_action)
                     if current_index < len(actions) - 1:
                         current_action = actions[current_index + 1]
                     else:
-                        submenu_active = False  # Exit after remapping all actions
+                        submenu_active = False  
 
-        # Draw the submenu
         screen.fill(BLACK)
         title = font.render(f"Player {player_number} Keybinds", True, GREEN)
         screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 50))
@@ -95,7 +91,7 @@ def keybind_submenu(player_keybinds, player_number):
     return player_keybinds
 
 def handle_input():
-    global selected_option, player1_keybinds  # Declare player1_keybinds as global
+    global selected_option, player1_keybinds  
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -108,8 +104,7 @@ def handle_input():
                 selected_option = (selected_option + 1) % len(options)
             elif event.key == pygame.K_RETURN:
                 if options[selected_option] == "Change Keybinds":
-                    # Call the keybind submenu for player 1
-                    player1_keybinds = keybind_submenu(player1_keybinds, 1)  # Update global player1_keybinds
+                    player1_keybinds = keybind_submenu(player1_keybinds, 1)  
                 elif options[selected_option] == "Restart Level":
                     print("Restart Level")
                 elif options[selected_option] == "Main Menu":
@@ -125,7 +120,6 @@ def main():
     clock = pygame.time.Clock()
 
     while True:
-        # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -138,13 +132,12 @@ def main():
             draw_pause_menu()
             handle_input()
         else:
-            # Game is running (other team handles this)
             screen.fill(BLACK)
             text = font.render("Game is running...", True, WHITE)
             screen.blit(text, (50, 50))
 
         pygame.display.flip()
-        clock.tick(60)  # Set the game to run at 60 FPS
+        clock.tick(60)  
 
 if __name__ == "__main__":
     main()

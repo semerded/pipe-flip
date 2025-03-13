@@ -19,8 +19,8 @@ class Player:
 
         # object of sounmanager
         self.sound_manager = SoundManager()
-         # To track if the jump sound has played
-        self.jumped = False 
+        # To track if the jump sound has played
+        self.jumped = False
 
         self.player_number = player_number
         self.score = 0
@@ -47,7 +47,7 @@ class Player:
         self.ground_pos = self.y
         self.jumping_up = False
         self.jump_threshold = self.y + self.img.get_height()
-        self.jump_held = False  
+        self.jump_held = False
 
         self.rect: Rect = self.get_rect()
         self.previous_rect: Rect = Rect.place_holder()
@@ -59,17 +59,18 @@ class Player:
         self.Y_UP_SPEED = vh(40)
         self.Y_DOWN_SPEED = vh(50)
 
-
     def change_chunk(self):
         self.upside_down = not self.upside_down
         self.img = pygame.transform.flip(self.img, False, self.upside_down)
 
-    def cycle(self, tile_grid) -> bool:
+    def cycle(self, tile_list) -> bool:
         """
         main cycle of the player\n
         returns true if staged an update
         """
-        self.move(tile_grid)
+        self.move(tile_list)
+        
+        self.check_special_tiles(tile_list)
 
         if self.stage_update:
             self.update()
@@ -89,14 +90,17 @@ class Player:
         This uses the built-in collidelistall method.
         """
         # Build the list of tile rects.
-        tile_rects = [tile.rect for tile in tile_list]
+        tile_rects: list[Rect] = []
+        for tile in tile_list:
+            if tile.type == "block":
+                tile_rects.append(tile.rect)
+                
         # collidelistall returns a list of indices where collisions occur.
         return self.rect.collidelistall(tile_rects)
-        
+
     def get_nearby_tiles(self, tile_list):
         indices = self.get_nearby_tile_indices(tile_list)
-        return [tile_list[i] for i in indices]  
-
+        return [tile_list[i] for i in indices]
 
     def move(self, tile_list):
         """
@@ -127,11 +131,9 @@ class Player:
             self.x = prev_x
             horizontal_move = 0
 
-
         # Update collision rectangle after horizontal changes.
 
         # Play footsteps sound only if moving left or right, but not both at once
-       
 
         # Update the collision rectangle (for horizontal movement).
 
@@ -154,7 +156,9 @@ class Player:
                 self.ground_pos = self.y
                 self.jump_action = True
                 self.jumping_up = True
-                self.jump_threshold = self.y - self._factor_upside_down(self.img.get_height()) * self.jump_height
+                self.jump_threshold = self.y - \
+                    self._factor_upside_down(
+                        self.img.get_height()) * self.jump_height
                 just_jumped = True
             # Mark jump as held so it cannot be re-triggered.
             self.jump_held = True
@@ -168,7 +172,8 @@ class Player:
         else:
             # Not jumping: apply gravity.
             # For normal players, y increases (falling down). For upside-down, _factor_upside_down negates the delta (falling up).
-            self.y += self._factor_upside_down(calculate_delta(self.Y_DOWN_SPEED))
+            self.y += self._factor_upside_down(
+                calculate_delta(self.Y_DOWN_SPEED))
             self.stage_update = True
 
         # Update collision rectangle after vertical movement.
@@ -206,39 +211,56 @@ class Player:
         # Sync vertical position and update collision rectangle.
         self.y = self.rect.y
         self.rect = self.get_rect()
-        
+
         # play sounds
-        
-        if horizontal_move in [1, 2] and self.x != prev_x and not self.jump_action:  # 1 = left, 2 = right
+
+        # 1 = left, 2 = right
+        if horizontal_move in [1, 2] and self.x != prev_x and not self.jump_action:
             self.sound_manager.play_sound("footsteps")
-        
+
         if just_jumped:
-            self.sound_manager.play_sound("jump")  
+            self.sound_manager.play_sound("jump")
 
-
-    
     def _jump(self):
         if self.jumping_up:
             # While jumping upward: normal behavior is to decrease y for an overworld player.
-            self.y -= self._factor_upside_down(calculate_delta(self.Y_UP_SPEED))
+            self.y -= self._factor_upside_down(
+                calculate_delta(self.Y_UP_SPEED))
             # Check if jump threshold is reached depending on orientation.
             if (not self.upside_down and self.y <= self.jump_threshold) or \
-            (self.upside_down and self.y >= self.jump_threshold):
-                self.y -= self._factor_upside_down(calculate_delta(self.Y_UP_SPEED))
+                    (self.upside_down and self.y >= self.jump_threshold):
+                self.y -= self._factor_upside_down(
+                    calculate_delta(self.Y_UP_SPEED))
             if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):
                 self.jumping_up = False
         else:
             # While falling in a jump: increase y for overworld, decrease for upside-down.
-            self.y += self._factor_upside_down(calculate_delta(self.Y_DOWN_SPEED))
+            self.y += self._factor_upside_down(
+                calculate_delta(self.Y_DOWN_SPEED))
             if (not self.upside_down and self.y >= self.ground_pos) or \
-            (self.upside_down and self.y <= self.ground_pos):
+                    (self.upside_down and self.y <= self.ground_pos):
                 self.y = self.ground_pos
                 self.jump_action = False
-
-
 
     def _factor_upside_down(self, value):
         return value * -1 if self.upside_down else value
 
     def get_rect(self) -> Rect:
         return Rect(self.x, self.y, self.img.get_width(), self.img.get_height())
+
+    def check_special_tiles(self, tile_list):
+        tile_rect_map = [(tile, tile.interactable_rect) for tile in tile_list if tile.interactable_rect is not None]
+        rect_list = [pair[1] for pair in tile_rect_map]
+        collide_indices = self.rect.collidelistall(rect_list)
+        collide_tiles = [tile_rect_map[i][0] for i in collide_indices]
+
+        for tile in collide_tiles:
+            print(f"Collided with tile of type: {tile.type}")
+            if tile.type == "trap:spikes":
+                print("Player hit spikes!")
+                from time import sleep
+                sleep(10000)
+            elif tile.type == "button:notpressed":
+                print("Pressed button!")
+                tile.type = "button:pressed"
+                tile.update_texture()

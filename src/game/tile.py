@@ -4,6 +4,7 @@ from src.core.utils.rect import Rect
 from src.core.handler.scaling import Scaling
 from src.color import Color
 
+
 class Tile:
     def __init__(self, x: int, y: int, type: str, upside_down: bool = False):
         self.upside_down = upside_down
@@ -13,19 +14,46 @@ class Tile:
             self.tile_y = y
         else:
             self.tile_y = data.TILE_COUNT_Y - y - 1
-            
-        self.rect = Rect(Scaling.tile_to_screenunit(self.tile_x), Scaling.tile_to_screenunit(self.tile_y), self.size, self.size)
+
+        self.interactable_rect = None
+
+        self.rect = Rect(Scaling.tile_to_screenunit(
+            self.tile_x), Scaling.tile_to_screenunit(self.tile_y), self.size, self.size)
         self.type = type
-        
-        if upside_down:
-            self.texture = data.tile_texture_cache[self.type]["underworld"][0]
-            self.texture = pygame.transform.flip(self.texture, False, True)
+        self.update_texture()
+
+    def update_texture(self):
+        if self.type == "block":
+            if self.upside_down:
+                self.texture = data.tile_texture_cache[self.type]["underworld"][0]
+                self.texture = pygame.transform.flip(self.texture, False, True)
+            else:
+                self.texture = data.tile_texture_cache[self.type]["overworld"][0]
         else:
-            self.texture = data.tile_texture_cache[self.type]["overworld"][0]
-        
+            type = self.type.split(":")
+            if type[0] == "trap":
+                if type[1] == "spikes":
+                    self.texture = data.tile_texture_cache[type[0]][type[1]][0]
+                    self.interactable_rect = Rect(
+                        self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40))
+            elif type[0] == "door":
+                pass
+            elif type[0] == "button":
+                if type[1] == "notpressed":
+                    self.texture = data.tile_texture_cache[type[0]][type[1]][0]
+                    self.interactable_rect = Rect(
+                        self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40)
+                    )
+                elif type[1] == "pressed":
+                    self.texture = data.tile_texture_cache[type[0]][type[1]][0]
+                    self.interactable_rect = None
+            elif type[0] == "sign":
+                pass
+            elif type[0] == "coin":
+                pass
+
     def cycle(self):
-        
         pass
-    
+
     def draw(self):
         data.window.blit(self.texture, self.rect)

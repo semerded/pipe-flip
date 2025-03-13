@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from src.game.input import Input
     from src.core.utils.rect import Rect
     
-FPS: int = 999999
+FPS: int = 60
 
 # Display information
 ASPECT_RATIO: float = 16 / 9
@@ -24,7 +24,7 @@ window_width: int = display_width
 window_height: int = display_height
 window: pygame.Surface = None
 
-TILE_COUNT_X: int = 32
+TILE_COUNT_X: int = 48
 TILE_COUNT_Y: int = int(TILE_COUNT_X / ASPECT_RATIO)
 TILE_SIZE: int = int(window_width / TILE_COUNT_X) # values should be ints with aspect ratio 16/9
 

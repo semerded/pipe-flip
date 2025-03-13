@@ -7,4 +7,7 @@ def calculate_delta(speed):
     :param speed: The speed in units per second
     :return: The delta (adjusted movement per frame)
     """
-    return speed / data.clock.get_fps()
+    fps = data.clock.get_fps()
+    if fps == 0.0:
+        return 0
+    return speed / fps

@@ -5,6 +5,7 @@ class SoundManager:
     def __init__(self):
         pygame.mixer.init()
         self.sounds = {}
+        self.active_channels = {}
         self.load_sounds()
 
     def load_sounds(self):
@@ -28,9 +29,18 @@ class SoundManager:
                 print(f"Warning: Sound file '{filename}' not found at {path}.")
 
     def play_sound(self, sound_name):
-        sound = self.sounds.get(sound_name)
+        channel: pygame.mixer.Channel
+        if sound_name in self.active_channels:
+            channel = self.active_channels[sound_name]
+            if not channel.get_busy():
+                sound: pygame.mixer.Sound = self.sounds.get(sound_name)
+            else:
+                return
+        else:
+            sound: pygame.mixer.Sound = self.sounds.get(sound_name)
+        
         if sound:
-            sound.play()
+            self.active_channels[sound_name] = sound.play()
         else:
             print(f"Warning: Sound '{sound_name}' not loaded.")
 

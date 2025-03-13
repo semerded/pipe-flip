@@ -55,9 +55,9 @@ class Player:
 
         # movemvent speed
 
-        self.X_SPEED = vw(20)
-        self.Y_UP_SPEED = vh(60)
-        self.Y_DOWN_SPEED = vh(70)
+        self.X_SPEED = vw(12)
+        self.Y_UP_SPEED = vh(40)
+        self.Y_DOWN_SPEED = vh(50)
 
 
     def change_chunk(self):
@@ -131,8 +131,7 @@ class Player:
         # Update collision rectangle after horizontal changes.
 
         # Play footsteps sound only if moving left or right, but not both at once
-        if horizontal_move in [1, 2]:  # 1 = left, 2 = right
-            self.sound_manager.play_sound("footsteps")
+       
 
         # Update the collision rectangle (for horizontal movement).
 
@@ -207,6 +206,14 @@ class Player:
         # Sync vertical position and update collision rectangle.
         self.y = self.rect.y
         self.rect = self.get_rect()
+        
+        # play sounds
+        
+        if horizontal_move in [1, 2] and self.x != prev_x and not self.jump_action:  # 1 = left, 2 = right
+            self.sound_manager.play_sound("footsteps")
+        
+        if just_jumped:
+            self.sound_manager.play_sound("jump")  
 
 
     
@@ -217,15 +224,7 @@ class Player:
             # Check if jump threshold is reached depending on orientation.
             if (not self.upside_down and self.y <= self.jump_threshold) or \
             (self.upside_down and self.y >= self.jump_threshold):
-
-            # Trigger jump sound when jumping up
-            if not self.jumped:
-                # Assuming 'jump' is the key for the jump sound in your SoundManager
-                self.sound_manager.play_sound("jump")  
-                # Make sure the sound only plays once per jump
-                self.jumped = True  
-
-            self.y -= self._factor_upside_down(calculate_delta(600))
+                self.y -= self._factor_upside_down(calculate_delta(self.Y_UP_SPEED))
             if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):
                 self.jumping_up = False
         else:
@@ -235,9 +234,6 @@ class Player:
             (self.upside_down and self.y <= self.ground_pos):
                 self.y = self.ground_pos
                 self.jump_action = False
-                # Reset the flag when the player lands
-                self.jumped = False  
-
 
 
 

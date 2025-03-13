@@ -6,6 +6,7 @@ pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("pipe flip!")
 
+# import scripts
 from src import data
 from src.screen.intro import intro
 from src.screen.menu import menu
@@ -18,9 +19,19 @@ from src.game.input import Input
 from src.color import Color
 from src.game.world import World
 from src.core.utils.camera import Camera
+from src.core.handler.sound import SoundManager
+
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-# import scripts
+
+
+
+# Initialize Pygame and SoundManager
+sound_manager = SoundManager()
+
+# Set background music to loop
+sound_manager.play_background_music()
+
 
 data.window = pygame.display.set_mode(
     (data.window_width, data.window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -48,6 +59,17 @@ while data.game_running:
 
     current_screen_func[0](*current_screen_func[1])
 
+
+            
+    world.cycle()
+    
+    if len(data.rect_update_list) != 0:
+        pygame.display.update(data.rect_update_list)
+        data.rect_update_list = []
+    
+
+# Stop all sounds when game ends
+sound_manager.stop_all_sounds()
 
 # cleanup
 exit(0)

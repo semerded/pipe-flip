@@ -5,6 +5,7 @@ from src.enums import screen
 
 def event_handler(event):
     data.game_input.reset_mouse_button_flank()
+    data.game_input.enter = False
     for _event in event:
         
         if _event.type == pygame.QUIT:
@@ -27,6 +28,9 @@ def event_handler(event):
                 data.game_input.player_right(1)
             if _event.key == pygame.K_z:
                 data.game_input.player_jump(1)
+                
+            if _event.key == pygame.K_RETURN:
+                data.game_input.enter = True
             
         elif _event.type == pygame.KEYUP:
             if _event.key == pygame.K_j:
@@ -42,6 +46,7 @@ def event_handler(event):
                 data.game_input.player_cancel_right(1)
             if _event.key == pygame.K_z:
                 data.game_input.player_cancel_jump(1)
+                
                 
         if _event.type == pygame.MOUSEBUTTONDOWN:
             if _event.button == 1:

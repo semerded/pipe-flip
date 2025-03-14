@@ -46,7 +46,7 @@ def menu(player1, player2, world):
         world.update()
         
     elif main_menu_button.is_clicked():
-        data.current_screen = screen.main_menu
+        data.current_screen = screen.home
         
     elif quit_button.is_clicked():
         data.game_running = False

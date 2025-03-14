@@ -47,6 +47,10 @@ class Text:
         self.text_rect = Rect(x, y, self.width, self.height)
         data.window.blit(self.text_surface, (x, y))
 
+    def draw_on_surface(self, surface, x, y):
+        self.text_rect = Rect(x, y, self.width, self.height)
+        surface.blit(self.text_surface, (x, y))
+        
     def place_in_rect(self, rect, percent_x, percent_y):
         _rect: Rect = rect
         x = _rect.x + (_rect.w - self.width) * percent_x

@@ -9,6 +9,7 @@ from src.core.handler.delta import calculate_delta
 from src.game.tile import Tile
 from src.core.handler.sound import SoundManager
 from src.enums import screen
+from src.widgets.text import Text
 
 if TYPE_CHECKING:
     from src.game.input import Input
@@ -22,17 +23,19 @@ class Player:
         self.sound_manager = SoundManager()
         # To track if the jump sound has played
         self.jumped = False
+        self.upside_down = upside_down
+        
+        self.img_string = img
+        
+        color = Color.SPRING_GREEN if not self.upside_down else Color.SKY_BLUE
+        self.player_text = Text("Player " + str(player_number) + ": running", pygame.font.SysFont("Arial", 16), color)
+        self.player_text.set_background_color(Color.GRAY)
+        
 
         self.player_number = player_number
         self.score = 0
-        self.upside_down = upside_down
 
-        _py_img = pygame.image.load(img)
-        aspect_ratio = _py_img.get_height() / _py_img.get_width()
-        _py_img = pygame.transform.smoothscale(
-            _py_img, ((data.TILE_SIZE) - 2, int((data.TILE_SIZE) * aspect_ratio) - 2))
-        self.img: pygame.Surface = pygame.transform.flip(
-            _py_img, False, upside_down)
+        self.load_textures(self.img_string)
 
         self.input = input
 
@@ -59,6 +62,16 @@ class Player:
         self.X_SPEED = vw(12)
         self.Y_UP_SPEED = vh(40)
         self.Y_DOWN_SPEED = vh(50)
+    
+    def load_textures(self, img):
+        _py_img = pygame.image.load(img)
+        aspect_ratio = _py_img.get_height() / _py_img.get_width()
+        _py_img = pygame.transform.smoothscale(
+            _py_img, ((data.TILE_SIZE) - 2, int((data.TILE_SIZE) * aspect_ratio) - 2))
+        self.img: pygame.Surface = pygame.transform.flip(
+            _py_img, False, self.upside_down)
+        
+
 
     def change_chunk(self):
         self.upside_down = not self.upside_down
@@ -70,6 +83,8 @@ class Player:
             self.y = (center_of_screen()[1] + vh(40))
         else:
             self.y = (center_of_screen()[1] - self.img.get_height()) - vh(40)
+        color = Color.SPRING_GREEN if not self.upside_down else Color.SKY_BLUE
+        self.player_text.color = color
 
     def cycle(self, tile_list) -> bool:
         """
@@ -95,6 +110,11 @@ class Player:
         else:
             y = self.rect.y
         surface.blit(self.img, (self.x, y))
+        
+        y = 0 if not self.upside_down else vh(50) - self.player_text.height
+        self.player_text.draw_on_surface(surface, 0, y)
+        
+        
 
     def get_nearby_tile_indices(self, tile_list):
         """
@@ -160,6 +180,9 @@ class Player:
                     elif horizontal_move == 1:  # Moving left.
                         self.rect.left = tile.rect.right
             self.x = self.rect.x
+        
+        if self.x < 0:
+            self.x = 0
 
         # --- Vertical Movement ---
         # Edge-triggered jump: only initiate jump if the jump button is pressed now and wasn't already held.
@@ -240,7 +263,6 @@ class Player:
                 calculate_delta(self.Y_UP_SPEED))
             # Check if jump threshold is reached depending on orientation.
             if (not self.upside_down and self.y <= self.jump_threshold) or \
-
                     (self.upside_down and self.y >= self.jump_threshold):
                 self.y -= self._factor_upside_down(
                     calculate_delta(self.Y_UP_SPEED))
@@ -268,6 +290,7 @@ class Player:
         collide_tiles = [tile_rect_map[i][0] for i in collide_indices]
 
         for tile in collide_tiles:
+            print(f"Collided with tile of type: {tile.type}")
             if tile.type == "trap:spikes":
                 self.sound_manager.pause_and_play_sound("game_over", 0.5)
                 data.current_screen = screen.game_over

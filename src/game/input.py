@@ -5,6 +5,7 @@ class Input:
         self.player_controls = [{"left": False, "right": False, "jump": False}, {"left": False, "right": False, "jump": False}]
         self.lmb_flank = False
         self.lmb_status = False
+        self.enter = False
         
     def player_left(self, player: int):
         self.player_controls[player]["left"] = True
@@ -65,4 +66,6 @@ class Input:
     
     def is_mouse_released_outside_rect(self, rect):
         return self.is_mouse_button_released() and not self.is_mouse_button_in_rect(rect)
+    
+    
     

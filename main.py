@@ -38,15 +38,17 @@ data.clock = pygame.time.Clock()
 player1 = Player(data.game_input, "assets/img/actor/player.png", False, 0)
 player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
 
-world: World = World(player1, player2)
+world: World = World(player1, player2, sound_manager)
 world.update()
 
 from src.screen.intro import intro
 from src.screen.menu import menu
 from src.screen.game import game
 from src.screen.game_over import game_over
+from src.screen.level_finished import level_finished
+from src.screen.home import home
 
-screen_funcs = ((intro, ()), (game, (world, )), (menu, (player1, player2, world)), (game_over, (player1, player2, world)), (level_finished, ()), (home, ()))
+screen_funcs = ((intro, ()), (game, (world, )), (menu, (player1, player2, world)), (game_over, (player1, player2, world)), (level_finished, ()), (home, (player1, player2, world)))
 
 while data.game_running:
     # print(data.clock.get_fps())

@@ -1,6 +1,7 @@
 import pygame
 from src import data
 from src.color import Color
+from src.enums import screen
 
 # Global variables for the level and score
 level = 1  # Example initial level
@@ -18,10 +19,13 @@ def level_finished():
     Displays the level completed screen with level details and options to proceed.
     This version doesn't require arguments, using global variables for level and score.
     """
+    data.window.fill(Color.BLACK)
     # Load and display the background image first
     try:
         background_image = pygame.image.load('./assets/img/finish.jpeg')
         background_image = pygame.transform.scale(background_image, (data.window_width, data.window_height))
+        background_image = background_image.convert_alpha()
+        background_image.set_alpha(128)
         data.window.blit(background_image, (0, 0))
     except pygame.error as e:
         print(f"Error loading image: {e}")
@@ -48,27 +52,12 @@ def level_finished():
     main_menu_surface = font_bold.render(main_menu_text, True, Color.WHITE)
     main_menu_rect = main_menu_surface.get_rect(center=(data.window_width // 2, data.window_height // 1.3))
     data.window.blit(main_menu_surface, main_menu_rect)
+    
+    if data.game_input.enter:
+        data.current_screen = screen.game
 
     # Refresh the display
     pygame.display.flip()
 
     # Event handling loop for the Enter and Escape keys
-    waiting_for_input = True
-    while waiting_for_input:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    print("Proceeding to the next level...")
-                    # Logic to proceed to next level goes here
-                    waiting_for_input = False  # Exit the loop
-
-                elif event.key == pygame.K_ESCAPE:
-                    print("Returning to the main menu...")
-                    # Logic to return to the main menu goes here
-                    waiting_for_input = False  # Exit the loop
-
-                # If any other key is pressed, ignore it (do nothing)
+    

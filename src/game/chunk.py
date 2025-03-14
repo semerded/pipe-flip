@@ -23,6 +23,8 @@ class Chunk:
 
         self.tiles: list[Tile] = []
         
+        self.level_completed = False
+        
         self._load_textures()
 
     def _load_textures(self):
@@ -33,8 +35,14 @@ class Chunk:
         self.textures.append(img)
 
     def cycle(self):
-        if self.player.cycle(self.tiles):
+        if self.player.x > vw(100) and not self.level_completed:
+            self.level_completed = True
+            self.player.player_text.set_text("Player " + str(self.player.player_number) + ": compelted", True)
             self.draw()
+        if not self.level_completed:
+            
+            if self.player.cycle(self.tiles):
+                self.draw()
 
     def draw(self):
         self.surface.blit(self.textures[0], (0, 0))

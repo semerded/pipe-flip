@@ -44,7 +44,7 @@ class Tile:
                         )
                     else:
                         self.interactable_rect = Rect(
-                            self.rect.x, self.rect.y + self.rect.rh(80), self.rect.w, self.rect.rh(20),)
+                            self.rect.x + self.rect.rw(20), self.rect.y + self.rect.rh(80), self.rect.rw(60), self.rect.rh(20),)
             elif type[0] == "door":
                 pass
             elif type[0] == "button":

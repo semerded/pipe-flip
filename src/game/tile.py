@@ -3,6 +3,7 @@ from src import data
 from src.core.utils.rect import Rect
 from src.core.handler.scaling import Scaling
 from src.color import Color
+from src.core.utils.screenunit import vh
 
 
 class Tile:
@@ -39,11 +40,11 @@ class Tile:
                             self.rect.x,
                             self.rect.y,
                             self.rect.w,
-                            self.rect.rh(40),
+                            self.rect.rh(20),
                         )
                     else:
                         self.interactable_rect = Rect(
-                            self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40),)
+                            self.rect.x, self.rect.y + self.rect.rh(80), self.rect.w, self.rect.rh(20),)
             elif type[0] == "door":
                 pass
             elif type[0] == "button":
@@ -67,7 +68,11 @@ class Tile:
     def cycle(self):
         pass
 
-    def draw(self):
-        data.window.blit(self.texture, self.rect)
+    def draw(self, surface):
+        if self.upside_down:
+            y = self.rect.y - vh(50)
+        else:
+             y = self.rect.y
+        surface.blit(self.texture, (self.rect.x, y))
         if self.interactable_rect is not None and data.debugging:
-            pygame.draw.rect(data.window, Color.RED, self.interactable_rect, 1)
+            pygame.draw.rect(surface, Color.RED, self.interactable_rect, 1)

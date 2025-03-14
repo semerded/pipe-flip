@@ -5,6 +5,7 @@ from src.game.input import Input
 def event_handler(event):
     data.game_input.reset_mouse_button_flank()
     for _event in event:
+        
         if _event.type == pygame.QUIT:
             data.game_running = False
             

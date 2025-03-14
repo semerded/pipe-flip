@@ -8,6 +8,7 @@ from src.core.utils.rect import Rect
 from src.core.handler.delta import calculate_delta
 from src.game.tile import Tile
 from src.core.handler.sound import SoundManager
+from src.enums import screen
 
 if TYPE_CHECKING:
     from src.game.input import Input
@@ -258,8 +259,9 @@ class Player:
             print(f"Collided with tile of type: {tile.type}")
             if tile.type == "trap:spikes":
                 print("Player hit spikes!")
-                from time import sleep
-                sleep(10000)
+                self.sound_manager.pause_and_play_sound("game_over", 0.5)
+                data.current_screen = screen.game_over
+                
             elif tile.type == "button:notpressed":
                 print("Pressed button!")
                 tile.type = "button:pressed"

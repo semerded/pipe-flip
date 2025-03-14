@@ -11,6 +11,7 @@ from src import data
 from src.screen.intro import intro
 from src.screen.menu import menu
 from src.screen.game import game
+from src.screen.game_over import game_over
 from src.widgets.button import Button
 from src.core.handler.scaling import Scaling
 from src.game.player import Player
@@ -47,7 +48,7 @@ player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
 world: World = World(player1, player2)
 world.update()
 
-screen_funcs = ((intro, ()), (game, (world, )), (menu, ()))
+screen_funcs = ((intro, ()), (game, (world, )), (menu, ()), (game_over, ()))
 
 while data.game_running:
     # print(data.clock.get_fps())

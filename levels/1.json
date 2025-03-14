@@ -27,7 +27,8 @@
         [19, 8, "block"],
         [20, 8, "block"],
         [21, 8, "block"],
-        [6, 7, "button:notpressed"]
+        [6, 7, "button:notpressed"],
+        [7, 7, "trap:spikes"]
     ],
     "underworld": [
         [10, -1.0, "block"],

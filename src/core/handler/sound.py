@@ -4,7 +4,7 @@ import os
 class SoundManager:
     def __init__(self):
         pygame.mixer.init()
-        self.sounds = {}
+        self.sounds: dict[str, pygame.mixer.Sound] = {}
         self.active_channels = {}
         self.load_sounds()
 
@@ -51,6 +51,7 @@ class SoundManager:
 
     def play_background_music(self, loops=-1):
         bg_sound = self.sounds.get("background")
+        bg_sound.set_volume(0.5)
         if bg_sound:
             bg_sound.play(loops=loops)
 
@@ -61,3 +62,12 @@ class SoundManager:
             if sound_name != "background":  # Don't stop background music
                 sound.stop()
         pygame.mixer.music.stop()
+        
+    def pause_and_play_sound(self, sound_name, volume = 1):
+        sound = self.sounds.get(sound_name)
+        sound.set_volume(volume)
+        if sound:
+            channel = sound.play()
+            while channel.get_busy():
+                pygame.time.Clock().tick(10)
+            print("done")

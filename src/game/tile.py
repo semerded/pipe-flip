@@ -34,15 +34,24 @@ class Tile:
             if type[0] == "trap":
                 if type[1] == "spikes":
                     self.texture = data.tile_texture_cache[type[0]][type[1]][0]
-                    self.interactable_rect = Rect(
-                        self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40))
+                    if self.upside_down:
+                        self.interactable_rect = Rect(
+                            self.rect.x,
+                            self.rect.y,
+                            self.rect.w,
+                            self.rect.rh(40),
+                        )
+                    else:
+                        self.interactable_rect = Rect(
+                            self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40),)
             elif type[0] == "door":
                 pass
             elif type[0] == "button":
                 if type[1] == "notpressed":
                     self.texture = data.tile_texture_cache[type[0]][type[1]][0]
                     self.interactable_rect = Rect(
-                        self.rect.x, self.rect.y + self.rect.rh(60), self.rect.w, self.rect.rh(40)
+                        self.rect.x, self.rect.y +
+                        self.rect.rh(60), self.rect.w, self.rect.rh(40)
                     )
                 elif type[1] == "pressed":
                     self.texture = data.tile_texture_cache[type[0]][type[1]][0]
@@ -52,8 +61,13 @@ class Tile:
             elif type[0] == "coin":
                 pass
 
+        if self.upside_down:
+            self.texture = pygame.transform.flip(self.texture, False, True)
+
     def cycle(self):
         pass
 
     def draw(self):
         data.window.blit(self.texture, self.rect)
+        if self.interactable_rect is not None and data.debugging:
+            pygame.draw.rect(data.window, Color.RED, self.interactable_rect, 1)

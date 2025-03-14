@@ -1,6 +1,7 @@
 import pygame
 from src import data
 from src.game.input import Input
+from src.enums import screen
 
 def event_handler(event):
     data.game_input.reset_mouse_button_flank()
@@ -10,7 +11,7 @@ def event_handler(event):
             
         elif _event.type == pygame.KEYDOWN:
             if _event.key == pygame.K_ESCAPE:
-                data.game_running = False
+                data.current_screen = screen.menu
             
             if _event.key == pygame.K_j:
                 data.game_input.player_left(0)

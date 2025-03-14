@@ -1,7 +1,7 @@
 from enum import Enum
 
 class colorBlindType(Enum):
-    none = ""
+    none = "none"
     protanopia = "protanopia"
     deuteranopia = "deuteranopia"
     tritanopia = "tritanopia"

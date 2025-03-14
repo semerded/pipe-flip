@@ -89,8 +89,12 @@ class Player:
         data.rect_update_list.append(self.rect.union(self.previous_rect))
         self.stage_update = False
 
-    def draw(self):
-        data.window.blit(self.img, (self.x, self.y))
+    def draw(self, surface):
+        if self.upside_down:
+            y = self.rect.y - vh(50)
+        else:
+            y = self.rect.y
+        surface.blit(self.img, (self.x, y))
 
     def get_nearby_tile_indices(self, tile_list):
         """
@@ -263,7 +267,6 @@ class Player:
         collide_tiles = [tile_rect_map[i][0] for i in collide_indices]
 
         for tile in collide_tiles:
-            print(f"Collided with tile of type: {tile.type}")
             if tile.type == "trap:spikes":
                 self.sound_manager.pause_and_play_sound("game_over", 0.5)
                 data.current_screen = screen.game_over

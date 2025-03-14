@@ -1,10 +1,12 @@
 import pygame
+from src.enums import colorBlindType
 from src.game.player import Player
 from src.core.utils.rect import Rect
 from src.core.utils.screenunit import *
 from src.color import Color
 from src import data
 from src.game.tile import Tile
+from src.game.colorblind import apply_filter_with_pillow, apply_colorblind_filter_region
 
 
 class Chunk:
@@ -16,7 +18,8 @@ class Chunk:
         self.TEXTURE_PATH_BASE = "assets/img/chunk/"
         self.textures: list[pygame.Surface] = []
         self.stage_update = True
-
+        
+        self.surface: pygame.Surface = pygame.Surface((self.rect.width, self.rect.height))
 
         self.tiles: list[Tile] = []
         
@@ -24,7 +27,7 @@ class Chunk:
 
     def _load_textures(self):
         _type = "overworld" if not self.upside_down else "underworld"
-        img = pygame.transform.scale(pygame.image.load(self.TEXTURE_PATH_BASE + _type + "1" + self.player.color_blind_type.value + ".jpg").convert(), (self.rect.width, self.rect.height))
+        img = pygame.transform.scale(pygame.image.load(self.TEXTURE_PATH_BASE + _type + "1"+  ".jpg").convert(), (self.rect.width, self.rect.height))
         if self.upside_down:
             img = pygame.transform.flip(img, False, True)
         self.textures.append(img)
@@ -34,12 +37,19 @@ class Chunk:
             self.draw()
 
     def draw(self):
-        data.window.blit(self.textures[0], self.rect)
+        self.surface.blit(self.textures[0], (0, 0))
         tile: Tile
         for tile in self.tiles:
-            tile.draw()
-        self.player.draw()
+            tile.draw(self.surface)
+        self.player.draw(self.surface)
+        
+        if self.player.color_blind_type != colorBlindType.none:
+            self.surface = apply_filter_with_pillow(self.surface, self.player.color_blind_type.value)
+        data.window.blit(self.surface, self.rect)
 
     def update(self):
-        self.player.draw()
+        self.player.draw(self.surface)
+        if self.player.color_blind_type != colorBlindType.none:
+            self.surface = apply_colorblind_filter_region(self.surface, self.player.rect, self.player.color_blind_type.value)
         pygame.display.update(self.rect)
+        

@@ -2,15 +2,18 @@ from enum import Enum
 
 class colorBlindType(Enum):
     none = ""
-    protanomaly = "_protanomaly"
-    deuteranomaly = "_deuteranomaly"
-    tritanomaly = "_tritanomaly"
+    protanopia = "protanopia"
+    deuteranopia = "deuteranopia"
+    tritanopia = "tritanopia"
     
     
 class screen(Enum):
     intro = 0
     game = 1
     menu = 2
-    level_finished = 3
-    home = 4
+    
+    game_over = 3
+    level_finished = 4
+    home = 5
+ 
     

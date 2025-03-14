@@ -6,8 +6,8 @@ from src.widgets.button import Button
 import json
 from src import data
 
-width = 1440
-height = 910
+width = 960
+height = 640
 
 overworld_rect = Rect(0, 0, width, (height - 100) / 2)
 underworld_rect = Rect(0, (height - 100) / 2, width, (height - 100) / 2)

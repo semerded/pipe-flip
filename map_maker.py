@@ -78,7 +78,7 @@ button_dict["button:notpressed"].set_text("Button", pygame.font.SysFont("Arial",
 active_type = "block"
 
 def is_button_clicked(type):
-    return button_dict[type].rect.collidepoint(pygame.mouse.get_pos())
+    return button_dict[type].rect.collidepoint(pygame.mouse.get_pos()) and lmb_pressing
 
 while True:
     for event in pygame.event.get():

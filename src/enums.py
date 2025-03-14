@@ -2,9 +2,9 @@ from enum import Enum
 
 class colorBlindType(Enum):
     none = ""
-    protanomaly = "_protanomaly"
-    deuteranomaly = "_deuteranomaly"
-    tritanomaly = "_tritanomaly"
+    protanopia = "protanopia"
+    deuteranopia = "deuteranopia"
+    tritanopia = "tritanopia"
     
     
 class screen(Enum):

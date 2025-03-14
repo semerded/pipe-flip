@@ -63,6 +63,13 @@ class Player:
     def change_chunk(self):
         self.upside_down = not self.upside_down
         self.img = pygame.transform.flip(self.img, False, self.upside_down)
+        
+    def reset_cord(self):
+        self.x = 20
+        if self.upside_down:
+            self.y = (center_of_screen()[1] + vh(40))
+        else:
+            self.y = (center_of_screen()[1] - self.img.get_height()) - vh(40)
 
     def cycle(self, tile_list) -> bool:
         """
@@ -258,11 +265,9 @@ class Player:
         for tile in collide_tiles:
             print(f"Collided with tile of type: {tile.type}")
             if tile.type == "trap:spikes":
-                print("Player hit spikes!")
                 self.sound_manager.pause_and_play_sound("game_over", 0.5)
                 data.current_screen = screen.game_over
                 
             elif tile.type == "button:notpressed":
-                print("Pressed button!")
                 tile.type = "button:pressed"
                 tile.update_texture()

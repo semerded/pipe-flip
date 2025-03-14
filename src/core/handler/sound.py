@@ -70,4 +70,3 @@ class SoundManager:
             channel = sound.play()
             while channel.get_busy():
                 pygame.time.Clock().tick(10)
-            print("done")

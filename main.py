@@ -8,10 +8,6 @@ pygame.display.set_caption("pipe flip!")
 
 # import scripts
 from src import data
-from src.screen.intro import intro
-from src.screen.menu import menu
-from src.screen.game import game
-from src.screen.game_over import game_over
 from src.widgets.button import Button
 from src.core.handler.scaling import Scaling
 from src.game.player import Player
@@ -23,9 +19,6 @@ from src.core.utils.camera import Camera
 from src.core.handler.sound import SoundManager
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-
-
 
 # Initialize Pygame and SoundManager
 sound_manager = SoundManager()
@@ -48,6 +41,11 @@ player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
 world: World = World(player1, player2)
 world.update()
 
+from src.screen.intro import intro
+from src.screen.menu import menu
+from src.screen.game import game
+from src.screen.game_over import game_over
+
 screen_funcs = ((intro, ()), (game, (world, )), (menu, ()), (game_over, ()))
 
 while data.game_running:
@@ -59,15 +57,7 @@ while data.game_running:
     current_screen_func = screen_funcs[data.current_screen.value]
 
     current_screen_func[0](*current_screen_func[1])
-
-
-            
-    world.cycle()
-    
-    if len(data.rect_update_list) != 0:
-        pygame.display.update(data.rect_update_list)
-        data.rect_update_list = []
-    
+   
 
 # Stop all sounds when game ends
 sound_manager.stop_all_sounds()

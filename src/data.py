@@ -50,7 +50,10 @@ current_screen: 'screen' = screen.game
 
 current_level: int = 1
 
-tile_texture_cache = {"block": {"overworld": [], "underworld": []}}
+tile_texture_cache = {"block": {"overworld": [], "underworld": []}, "trap": {"spikes": []}, "button": {"notpressed": [], "pressed": []}}
 
 tile_texture_cache["block"]["overworld"].append(pygame.transform.scale(pygame.image.load("assets/img/tile/block/overworld1.jpg"), (TILE_SIZE, TILE_SIZE)))
 tile_texture_cache["block"]["underworld"].append(pygame.transform.scale(pygame.image.load("assets/img/tile/block/underworld1.jpg"), (TILE_SIZE, TILE_SIZE)))
+tile_texture_cache["trap"]["spikes"].append(pygame.transform.scale(pygame.image.load("assets/img/tile/traps/spikes.png"), (TILE_SIZE, TILE_SIZE)))
+tile_texture_cache["button"]["notpressed"].append(pygame.transform.scale(pygame.image.load("assets/img/tile/button/notpressed1.png"), (TILE_SIZE, TILE_SIZE)))
+tile_texture_cache["button"]["pressed"].append(pygame.transform.scale(pygame.image.load("assets/img/tile/button/pressed1.png"), (TILE_SIZE, TILE_SIZE)))

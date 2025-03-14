@@ -219,11 +219,11 @@ class Player:
             (self.upside_down and self.y >= self.jump_threshold):
 
             # Trigger jump sound when jumping up
-            if not self.jumped:
-                # Assuming 'jump' is the key for the jump sound in your SoundManager
-                self.sound_manager.play_sound("jump")  
-                # Make sure the sound only plays once per jump
-                self.jumped = True  
+                if not self.jumped:
+                    # Assuming 'jump' is the key for the jump sound in your SoundManager
+                    self.sound_manager.play_sound("jump")  
+                    # Make sure the sound only plays once per jump
+                    self.jumped = True  
 
             self.y -= self._factor_upside_down(calculate_delta(600))
             if (not self.upside_down and self.y <= self.jump_threshold) or (self.upside_down and self.y >= self.jump_threshold):

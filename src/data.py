@@ -46,7 +46,7 @@ game_input: 'Input' = None
 
 clock: pygame.time.Clock = None
 
-current_screen: 'screen' = screen.game
+current_screen: 'screen' = screen.home
 
 current_level: int = 1
 

@@ -11,6 +11,8 @@ from src import data
 from src.screen.intro import intro
 from src.screen.menu import menu
 from src.screen.game import game
+from src.screen.home import home
+from src.screen.level_finished import level_finished
 from src.widgets.button import Button
 from src.core.handler.scaling import Scaling
 from src.game.player import Player
@@ -47,7 +49,9 @@ player2 = Player(data.game_input, "assets/img/actor/player.png", True, 1)
 world: World = World(player1, player2)
 world.update()
 
-screen_funcs = ((intro, ()), (game, (world, )), (menu, ()))
+screen_funcs = ((intro, ()), (game, (world, )), (menu, ()), (level_finished, ()), (home, ()))
+
+print(data.current_screen.value)
 
 while data.game_running:
     # print(data.clock.get_fps())
@@ -56,16 +60,9 @@ while data.game_running:
     event_handler(pygame.event.get())
 
     current_screen_func = screen_funcs[data.current_screen.value]
+    
 
     current_screen_func[0](*current_screen_func[1])
-
-
-            
-    world.cycle()
-    
-    if len(data.rect_update_list) != 0:
-        pygame.display.update(data.rect_update_list)
-        data.rect_update_list = []
     
 
 # Stop all sounds when game ends

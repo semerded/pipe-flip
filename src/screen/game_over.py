@@ -16,7 +16,7 @@ button = Button(data.window_width / 2 - vw(20), data.window_height - vh(20), vw(
 button.set_text("Try Again", pygame.font.SysFont("comic sans", int(vw(4))), Color.WHITE)
 
 
-def game_over():
+def game_over(player1, player2, world):
     data.window.fill(Color.BLACK)
     data.window.blit(bg_img, (0, 0))
     
@@ -25,5 +25,9 @@ def game_over():
     
     if button.is_clicked():
         data.current_screen = screen.game
+        player1.reset_cord()
+        player2.reset_cord()
+        world.update()
+    
     
     pygame.display.flip()

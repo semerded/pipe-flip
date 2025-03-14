@@ -46,7 +46,7 @@ from src.screen.menu import menu
 from src.screen.game import game
 from src.screen.game_over import game_over
 
-screen_funcs = ((intro, ()), (game, (world, )), (menu, ()), (game_over, ()))
+screen_funcs = ((intro, ()), (game, (world, )), (menu, ()), (game_over, (player1, player2, world)))
 
 while data.game_running:
     # print(data.clock.get_fps())

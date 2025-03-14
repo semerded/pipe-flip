@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 FPS: int = 60
 
-debugging: bool = True
+debugging: bool = False
 
 
 # Display information

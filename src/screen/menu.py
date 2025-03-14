@@ -71,3 +71,4 @@ def menu(player1, player2, world):
         player_2_colorblind_button.set_text(color_blind_values[player_2_color_blind_index].value, font, Color.WHITE)
     
     pygame.display.flip()
+

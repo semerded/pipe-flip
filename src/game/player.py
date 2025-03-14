@@ -240,6 +240,7 @@ class Player:
                 calculate_delta(self.Y_UP_SPEED))
             # Check if jump threshold is reached depending on orientation.
             if (not self.upside_down and self.y <= self.jump_threshold) or \
+
                     (self.upside_down and self.y >= self.jump_threshold):
                 self.y -= self._factor_upside_down(
                     calculate_delta(self.Y_UP_SPEED))
